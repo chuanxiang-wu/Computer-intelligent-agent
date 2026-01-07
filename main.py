@@ -41,8 +41,8 @@ def init_computer_agent():
     engine_params = {
     "engine_type": "openai",
     "model": "Qwen/Qwen3-VL-30B-A3B-Thinking",
-    "base_url": 'https://api-inference.modelscope.cn/v1',           # Optional
-    "api_key": "ms-f3d132da-0b7d-4ea5-a713-c5052b097761",        # Optional
+    "base_url": 'your base_url',           # Optional
+    "api_key": "your api key",        # Optional
     "temperature": 0 # Optional
     }
 

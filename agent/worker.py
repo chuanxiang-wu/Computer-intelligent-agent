@@ -357,7 +357,7 @@ class Worker(BaseModule):
         self.turn_count += 1
         self.screenshot_inputs.append(obs["screenshot"])
         self.flush_messages()
-        if exec_code == 'DONE':
+        if exec_code == 'DONE' or exec_code == 'FAIL':
             self.turn_count = 0
         # print("" * 20 + " self.turn_count： "+ str(self.turn_count) + "*" * 20)
         logger.info("executor_info:\n %s", executor_info) 

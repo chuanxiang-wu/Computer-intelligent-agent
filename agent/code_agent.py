@@ -5,7 +5,7 @@ from prompt.sys_prompt import PROCEDURAL_MEMORY
 from utils.common_utils import call_llm_safe, split_thinking_response
 from core.llm import LLMAgent
 
-logger = logging.getLogger("desktopenv.agent")
+logger = logging.getLogger("ComputerAgent.code_agent")
 
 
 def extract_code_block(action: str) -> Tuple[Optional[str], Optional[str]]:

@@ -40,8 +40,8 @@ def init_computer_agent():
     engine_params = {
     "engine_type": "openai",
     "model": "Qwen/Qwen3-VL-30B-A3B-Thinking",
-    "base_url": 'https://api-inference.modelscope.cn/v1',           # Optional
-    "api_key": "ms-f3d132da-0b7d-4ea5-a713-c5052b097761",        # Optional
+    "base_url": 'your service url',           # Optional
+    "api_key": "your api key",        # Optional
     "temperature": 0 # Optional
     }
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         "screenshot": screenshot_bytes,
         }
         
-        pdb.set_trace()
+        # pdb.set_trace()
         info, action = agent.predict(instruction=instruction, observation=obs)
 
         # 打印代理决策信息和执行代码
@@ -134,12 +134,12 @@ if __name__ == "__main__":
         # 执行生成的代码（完整完成任务）
         print("\n" + "="*50 + " 开始执行单步任务 " + "="*50)
         # 任务完成返回的是DONE
-        if action[0] != "DONE":
+        if action[0] != "DONE" and action[0] != "FAIL":
             exec(action[0])
-            print("单步任务执行完成！\n\n")
-        else:
+            print(f"{action[0]}单步任务执行完成！\n\n")
+        elif action[0] == "DONE":
             label = 0
             print("任务执行完成！\n\n")
-            
-
-        
+        else:
+            label = 0
+            print(f"任务执行{action[0]}，无法完成！\n\n")

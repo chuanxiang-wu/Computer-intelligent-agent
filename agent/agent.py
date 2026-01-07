@@ -53,11 +53,11 @@ class Agent:
         executor_info, actions = self.executor.generate_next_action(
             instruction=instruction, obs=observation
         )
-        pdb.set_trace()
+        # pdb.set_trace()
         # concatenate the three info dictionaries
         info = {**{k: v for d in [executor_info or {}] for k, v in d.items()}}
 
-        logger.info(f"Agent predict info: {info}")
-        logger.info(f"Agent predict actions: {actions}")
+        # logger.info(f"Agent predict info: {info}")
+        # logger.info(f"Agent predict actions: {actions}")
         
         return info, actions

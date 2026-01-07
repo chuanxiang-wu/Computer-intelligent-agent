@@ -203,7 +203,7 @@ class LLMAgent:
             messages = self.messages
         if user_message:
             messages.append({"role": "user", "content": [{"type": "text", "text": user_message}]})
-        pdb.set_trace()
+        # pdb.set_trace()
         if use_thinking:
             return self.engine.generate_with_thinking(
                 messages,

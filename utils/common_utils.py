@@ -57,13 +57,13 @@ def call_llm_safe(
 
     while attempt < max_retries:
         try:
-            pdb.set_trace()
+            # pdb.set_trace()
             response = agent.get_response(
                 temperature=temperature, use_thinking=use_thinking, **kwargs
             )
             assert response is not None, "LLM 返回结果不能为空"
             print(f"LLM 调用成功，返回结果: {response}")
-            logger.info(f"LLM 调用成功，返回结果: {response}")
+            # logger.info(f"LLM 调用成功，返回结果: {response}")
             break
         except Exception as e:
             attempt += 1
@@ -191,7 +191,7 @@ def parse_code_from_string(input_string):
         str: 最后一个代码块内容，若不存在则返回空字符串
     """
 
-    logger.info("正在从字符串中解析代码块: %s", input_string)
+    # logger.info("正在从字符串中解析代码块: %s", input_string)
     
     input_string = input_string.strip()
 
@@ -216,6 +216,6 @@ def extract_agent_functions(code):
     返回:
         list[str]: 匹配到的 agent 方法调用列表
     """
-    logger.info("正在从代码中提取 agent 函数调用: %s", code)
+    # logger.info("正在从代码中提取 agent 函数调用: %s", code)
     pattern = r"(agent\.\w+\(\s*.*\))"
     return re.findall(pattern, code)

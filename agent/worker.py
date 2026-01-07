@@ -1,3 +1,4 @@
+import re
 from functools import partial
 import logging
 import textwrap
@@ -139,6 +140,11 @@ class Worker(BaseModule):
         if self.enable_reflection:
             # 加载初始消息
             if self.turn_count == 0:
+
+                # 重启 reflection agent
+                self.reflection_agent.reset()
+                self.reflection_agent.add_system_prompt(PROCEDURAL_MEMORY.REFLECTION_ON_TRAJECTORY)
+
                 text_content = textwrap.dedent(
                     f"""
                     任务描述: {instruction}
@@ -170,8 +176,7 @@ class Worker(BaseModule):
                     full_reflection
                 )
                 self.reflections.append(reflection)
-                logger.info("REFLECTION THOUGHTS: %s", reflection_thoughts)
-                logger.info("REFLECTION: %s", reflection)
+
         return reflection, reflection_thoughts
 
 
@@ -186,7 +191,7 @@ class Worker(BaseModule):
         返回:
             Tuple[Dict, List]: 包含执行信息的字典和动作列表
         """
-
+        pdb.set_trace()
         # 将当前截图和任务指令分配给 grounding agent
         self.grounding_agent.assign_screenshot(obs)
         self.grounding_agent.set_task_instruction(instruction)
@@ -195,27 +200,35 @@ class Worker(BaseModule):
         generator_message = (
             ""
             if self.turn_count > 0
-            else "提供了初始屏幕，尚未执行任何动作。"
+            else "提供了初始屏幕，尚未执行任何动作或已执行完上一个任务的动作。"
         )
-
+        pdb.set_trace()
         # 在系统提示中加载任务
         if self.turn_count == 0:
+            # self.generator_agent.reset()
+            pattern = r"你的职责是执行任务：`(.*?)`"
+            # 执行匹配
+            match_result = re.search(pattern, self.generator_agent.system_prompt)
+            print(str(match_result.group(1)))
             prompt_with_instructions = self.generator_agent.system_prompt.replace(
-                "TASK_DESCRIPTION", instruction
+                match_result.group(1), instruction
             )
+            print(prompt_with_instructions)
             self.generator_agent.add_system_prompt(prompt_with_instructions)
-
+        
         # 获取每一步的反思
         reflection, reflection_thoughts = self._generate_reflection(instruction, obs)
+        logger.info("REFLECTION THOUGHTS: %s", reflection_thoughts)
+        logger.info("REFLECTION: %s", reflection)
         if reflection:
             generator_message += f"REFLECTION: 可以利用以下反思改进前一步动作或整体轨迹：\n{reflection}\n"
-
+        
         # 加入 grounding agent 的文本缓冲知识
         generator_message += (
             f"\n当前文本缓冲 = [{','.join(self.grounding_agent.notes)}]\n"
         )
-        logger.info("generator_message: %s", generator_message)
-        pdb.set_trace()
+        # logger.info("generator_message: %s", generator_message)
+        # pdb.set_trace()
         # 如果上一轮有 code agent 结果，则加入
         if (
             hasattr(self.grounding_agent, "last_code_agent_result")
@@ -293,7 +306,7 @@ class Worker(BaseModule):
 
             # 重置 code agent 结果
             self.grounding_agent.last_code_agent_result = None
-        pdb.set_trace()
+        # pdb.set_trace()
         # 将 generator 消息加入到 agent 历史
         self.generator_agent.add_message(
             generator_message, image_content=obs["screenshot"], role="user"
@@ -305,6 +318,7 @@ class Worker(BaseModule):
             partial(CODE_VALID_FORMATTER, self.grounding_agent, obs),
         ]
         
+        
         plan = call_llm_formatted(
             self.generator_agent,
             format_checkers,
@@ -313,7 +327,7 @@ class Worker(BaseModule):
         )
         self.worker_history.append(plan)
         self.generator_agent.add_message(plan, role="assistant")
-        logger.info("PLAN:\n %s", plan)   
+        # logger.info("PLAN:\n %s", plan)   
 
         # 从计划中提取下一步动作
         plan_code = parse_code_from_string(plan)
@@ -339,10 +353,12 @@ class Worker(BaseModule):
                 else None
             ),
         }
-        pdb.set_trace()
+        # pdb.set_trace()
         self.turn_count += 1
         self.screenshot_inputs.append(obs["screenshot"])
         self.flush_messages()
-        if exec_code == "DONE":
+        if exec_code == 'DONE':
             self.turn_count = 0
+        # print("" * 20 + " self.turn_count： "+ str(self.turn_count) + "*" * 20)
+        logger.info("executor_info:\n %s", executor_info) 
         return executor_info, [exec_code]
